@@ -1,0 +1,24 @@
+# >Discente: Lucas Cavalcante dos Santos | cavalcantesidi@outlook.com
+# >Docente: Diego Luis Pires | dl.pires@sidi.org.br
+# >Disciplina: Práticas de DevOps (Terraform)
+# >Instituição: SiDi SOFTEX
+# ---------------------------------------------------------------------------
+# configmap.yaml
+# Configuração NÃO-sensível do task-manager (env vars sem credenciais).
+# Dados sensíveis ficam no secret.yaml.
+# ---------------------------------------------------------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: task-manager-config
+  namespace: task-manager
+  labels:
+    app: task-manager
+data:
+  # ---- PostgreSQL (DNS interno do Service) --------------------------------
+  DATABASE_HOST: "postgres-service"        # nome do Service do banco (kube-dns)
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: "task_manager"
+
+  # ---- task-manager (Next.js) ----------------------------------------------
+  PORT: "3000"

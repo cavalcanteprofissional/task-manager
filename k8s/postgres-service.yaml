@@ -1,0 +1,24 @@
+# >Discente: Lucas Cavalcante dos Santos | cavalcantesidi@outlook.com
+# >Docente: Diego Luis Pires | dl.pires@sidi.org.br
+# >Disciplina: Práticas de DevOps (Terraform)
+# >Instituição: SiDi SOFTEX
+# ---------------------------------------------------------------------------
+# postgres-service.yaml
+# Service ClusterIP (interno). O app resolve o banco por "postgres-service"
+# via kube-dns (porta 5432). Não é exposto externamente.
+# ---------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: task-manager
+  labels:
+    app: postgres
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432

@@ -10,3 +10,17 @@ build
 *.env.production.local
 coverage
 package-lock.json
+
+# ---- Terraform ------------------------------------------------------------
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+terraform.tfvars
+
+# ---- Kubernetes / cluster local --------------------------------------------
+terraform/kubeconfig
+kubeconfig
+
+# ---- Evidências locais (não versionar) ---------------------------------------
+prints/

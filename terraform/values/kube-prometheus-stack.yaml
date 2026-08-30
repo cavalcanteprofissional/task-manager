@@ -1,0 +1,43 @@
+# >Discente: Lucas Cavalcante dos Santos | cavalcantesidi@outlook.com
+# >Docente: Diego Luis Pires | dl.pires@sidi.org.br
+# >Disciplina: Práticas de DevOps (Terraform)
+# >Instituição: SiDi SOFTEX
+# ---------------------------------------------------------------------------
+# kube-prometheus-stack.yaml
+# Values injetados no helm_release kube-prometheus-stack:
+#   - Grafana exposto como NodePort 30009 (acesso localhost:3001)
+#   - Senha do admin definida (prom-operator)
+#   - Datasource Loki adicional (uid "loki") provisionado no Grafana
+#   - Sidecar de dashboards habilitado (label grafana_dashboard)
+#   - Sem persistência (ambiente didático local)
+# ---------------------------------------------------------------------------
+grafana:
+  service:
+    type: NodePort
+    nodePort: 30009
+  adminPassword: prom-operator
+  persistence:
+    enabled: false
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      searchNamespace: ALL
+    datasources:
+      enabled: true
+      label: grafana_datasource
+  additionalDataSources:
+    - name: Loki
+      uid: loki
+      type: loki
+      access: proxy
+      url: http://loki:3100
+      isDefault: false
+      jsonData:
+        maxLines: 1000
+      editable: false
+
+prometheus:
+  prometheusSpec:
+    retention: 1d
+  # storageSpec não definido -> sem PersistentVolume (não persiste em restart)

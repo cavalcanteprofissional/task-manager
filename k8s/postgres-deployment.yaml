@@ -1,0 +1,66 @@
+# >Discente: Lucas Cavalcante dos Santos | cavalcantesidi@outlook.com
+# >Docente: Diego Luis Pires | dl.pires@sidi.org.br
+# >Disciplina: Práticas de DevOps (Terraform)
+# >Instituição: SiDi SOFTEX
+# ---------------------------------------------------------------------------
+# postgres-deployment.yaml
+# Deployment do PostgreSQL 15. Credenciais vêm do Secret; host/porta/DB do
+# ConfigMap. O app conecta via Service "postgres-service".
+# ---------------------------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: task-manager
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: task-manager-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: task-manager-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: task-manager-secret
+                  key: POSTGRES_DB
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "admin", "-d", "task_manager"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "admin", "-d", "task_manager"]
+            initialDelaySeconds: 15
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

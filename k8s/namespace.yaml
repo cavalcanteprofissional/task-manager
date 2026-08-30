@@ -1,0 +1,14 @@
+# >Discente: Lucas Cavalcante dos Santos | cavalcantesidi@outlook.com
+# >Docente: Diego Luis Pires | dl.pires@sidi.org.br
+# >Disciplina: Práticas de DevOps (Terraform)
+# >Instituição: SiDi SOFTEX
+# ---------------------------------------------------------------------------
+# namespace.yaml
+# Isola todos os recursos do task-manager em um namespace próprio.
+# ---------------------------------------------------------------------------
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: task-manager
+  labels:
+    name: task-manager

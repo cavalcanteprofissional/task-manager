@@ -1,0 +1,27 @@
+# >Discente: Lucas Cavalcante dos Santos | cavalcantesidi@outlook.com
+# >Docente: Diego Luis Pires | dl.pires@sidi.org.br
+# >Disciplina: Práticas de DevOps (Terraform)
+# >Instituição: SiDi SOFTEX
+# ---------------------------------------------------------------------------
+# loki-stack.yaml
+# Values injetados no helm_release loki-stack:
+#   - Promtail habilitado: envia os logs dos pods para o Loki
+#   - Grafana do chart desabilitado (usa o Grafana do kube-prometheus-stack)
+#   - Loki NÃO é o datasource padrão, e o sidecar de datasources fica
+#     desabilitado (o datasource Loki é provisionado pelo kube-prometheus-stack
+#     com uid "loki")
+# ---------------------------------------------------------------------------
+loki:
+  enabled: true
+  isDefault: false
+  persistence:
+    enabled: false
+
+promtail:
+  enabled: true
+
+grafana:
+  enabled: false
+  sidecar:
+    datasources:
+      enabled: false

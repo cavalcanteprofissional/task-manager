@@ -1,0 +1,108 @@
+# >Discente: Lucas Cavalcante dos Santos | cavalcantesidi@outlook.com
+# >Docente: Diego Luis Pires | dl.pires@sidi.org.br
+# >Disciplina: Práticas de DevOps (Terraform)
+# >Instituição: SiDi SOFTEX
+# ---------------------------------------------------------------------------
+# ci.yml
+# CI/CD do task-manager (Docker Hub):
+#   - push/PR em "main": instala deps, build, roda testes (Jest) com banco
+#     PostgreSQL real (serviço do GitHub Actions) e aplicação em localhost.
+#   - na main: build + push da imagem para ${{ secrets.DOCKERHUB_USERNAME }}
+#     /task-manager:latest.
+# Secrets necessários no repo (Settings > Secrets and variables > Actions):
+#   DOCKERHUB_USERNAME e DOCKERHUB_TOKEN.
+# ---------------------------------------------------------------------------
+name: CI/CD task-manager
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Testes (lint + build + jest)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin
+          POSTGRES_DB: task_manager
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U admin -d task_manager"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_HOST: localhost
+      DATABASE_PORT: 5432
+      DATABASE_NAME: task_manager
+      DATABASE_USER: admin
+      DATABASE_PASSWORD: admin
+      PORT: 3000
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Build (Next.js)
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Iniciar servidor em background
+        run: |
+          node server.js &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:3000/api/health >/dev/null; then
+              echo "Health OK após ${i}s"
+              break
+            fi
+            sleep 1
+          done
+        env:
+          NODE_ENV: production
+
+      - name: Rodar testes (Jest)
+        run: npm test
+
+  docker:
+    name: Build + Push Docker Hub
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login no Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build e push da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/task-manager:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/task-manager:${{ github.sha }}

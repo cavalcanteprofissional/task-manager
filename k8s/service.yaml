@@ -1,0 +1,25 @@
+# >Discente: Lucas Cavalcante dos Santos | cavalcantesidi@outlook.com
+# >Docente: Diego Luis Pires | dl.pires@sidi.org.br
+# >Disciplina: Práticas de DevOps (Terraform)
+# >Instituição: SiDi SOFTEX
+# ---------------------------------------------------------------------------
+# service.yaml
+# Service NodePort expondo o app. Interno em :3000 (ClusterIP) e acessível
+# via localhost:30010 (NodePort 30010 <-> host 3000).
+# ---------------------------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: task-manager-service
+  namespace: task-manager
+  labels:
+    app: task-manager
+spec:
+  type: NodePort
+  selector:
+    app: task-manager
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+      nodePort: 30010
