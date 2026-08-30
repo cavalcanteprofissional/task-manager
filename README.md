@@ -257,6 +257,7 @@ terraform destroy -auto-approve
 | `prometheus.png` | `http://localhost:9090/graph?g0.expr=...` | Prometheus graph com query de CPU da task-manager |
 | `grafana-login.png` | `http://localhost:3001/login` | página de login do Grafana (exige credenciais) |
 | `grafana-dashboard.png` | `…/d/task-manager-observabilidade…?kiosk` | dashboard logado com painéis (CPU/mem/rede) |
+| `grafana-dashboard-logs.png` | `…?viewPanel=3&kiosk` | painel de **logs Loki** do dashboard |
 | `grafana-datasources.png` | `http://localhost:3001/datasources` | datasources configurados (inclui Loki) |
 | `tela-real.png` | — | screenshot real da tela do ambiente de execução |
 
