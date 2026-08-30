@@ -259,6 +259,8 @@ terraform destroy -auto-approve
 | `grafana-dashboard.png` | `…/d/task-manager-observabilidade…?kiosk` | dashboard logado com painéis (CPU/mem/rede) |
 | `grafana-dashboard-logs.png` | `…?viewPanel=3&kiosk` | painel de **logs Loki** do dashboard |
 | `grafana-datasources.png` | `http://localhost:3001/datasources` | datasources configurados (inclui Loki) |
+| `github-actions.png` | `…/actions/runs/33292304067` | **CI/CD aprovado**: run #2 `success` (job `test` + `docker`) |
+| `docker-hub-github-actions.png` | `https://hub.docker.com/r/cavalcanteprofissional/task-manager` | **Bônus**: imagem `latest` + `$sha` publicadas no Docker Hub |
 | `tela-real.png` | — | screenshot real da tela do ambiente de execução |
 
 ### 8.2 Terminal (estado e comportamento do cluster)
@@ -273,6 +275,8 @@ terraform destroy -auto-approve
 | `12-kubectl-all.png` | `kubectl -n task-manager get all` + `-n monitoring get all` | workloads e serviços saudáveis |
 | `13-prometheus-metric.png` | Prometheus query CPU/memória | métricas coletadas da app |
 | `14-loki-log.png` | Loki `{namespace="task-manager"}` | logs reais da app (Loki/Promtail) |
+| `20-terraform-destroy.png` | `terraform destroy -auto-approve` | limpeza completa (`Destroy complete! Resources: 5`) |
+| `21-k3d-after-destroy.png` | `k3d cluster list` | cluster `observabilidade` removido |
 
 > Obs.: `prints/` está no `.gitignore` — as evidências ficam apenas no ambiente
 > local, sendo referenciadas por este índice.
@@ -388,6 +392,24 @@ prom-operator
 
 $ curl -H "Authorization: Basic …" http://localhost:3001/api/search?type=dash-db
   uid=task-manager-observabilidade | Task-Manager Observabilidade
+```
+
+### [9] `terraform destroy -auto-approve` — limpeza completa do cluster
+
+```text
+$ terraform destroy -auto-approve
+null_resource.cluster (local-exec): INFO[0000] Deleting cluster 'observabilidade'
+helm_release.loki_stack: Destruction complete after 3s
+helm_release.kube_prometheus_stack: Destruction complete after 17s
+null_resource.app (local-exec): namespace "task-manager" deleted
+null_resource.cluster (local-exec): INFO[0031] Successfully deleted cluster observabilidade!
+null_resource.cluster: Destruction complete after 32s
+
+Destroy complete! Resources: 5 destroyed.
+
+$ k3d cluster list
+NAME         SERVERS   AGENTS   LOADBALANCER
+residencia   0/1       0/0      true     # observabilidade removido
 ```
 
 ---
